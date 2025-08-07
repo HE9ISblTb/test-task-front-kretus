@@ -55,7 +55,10 @@ function DynamicForm() {
         fetch('http://localhost:4222/api/reports')
             .then(res => res.json())
             .then(data => {
-                    setReports(data.results);
+                setReports(data.results.filter(report =>
+                    report && report.date_settlement && report.date_avg &&
+                    report.temperature_avg != null && Array.isArray(report.use_temperature)
+                ));
             })
             .catch(err => console.error('Ошибка fetch (все отчёты):', err));
     };
@@ -122,7 +125,8 @@ function DynamicForm() {
                     <table className="results-table">
                         <thead>
                         <tr>
-                            <th>Дата</th>
+                            <th>Дата создания</th>
+                            <th>Дата усреднения</th>
                             <th>Средняя температура</th>
                             <th>Температуры</th>
                         </tr>
@@ -130,9 +134,10 @@ function DynamicForm() {
                         <tbody>
                         {reports.map((report, index) => (
                             <tr key={index}>
-                                <td>{new Date(report.date).toLocaleString()}</td>
-                                <td>{report.avg_temp}°C</td>
-                                <td>{report.used_temp.join(', ')}</td>
+                                <td>{new Date(report.date_settlement).toLocaleString()}</td>
+                                <td>{new Date(report.date_avg).toLocaleString()}</td>
+                                <td>{report.temperature_avg}°C</td>
+                                <td>{Array.isArray(report.use_temperature) ? report.use_temperature.join(', ') : 'Нет данных'}</td>
                             </tr>
                         ))}
                         </tbody>
